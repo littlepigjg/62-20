@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Query
 
 from ..models import TemplateCreateRequest, TemplateUpdateRequest
 from ..core.template import template_manager, ScriptTemplate
+from ..core.search_indexer import search_indexer
 
 router = APIRouter(prefix="/templates", tags=["Templates"])
 
@@ -39,6 +40,7 @@ async def create_template(req: TemplateCreateRequest):
         interpreter=req.interpreter,
         tags=req.tags,
     )
+    search_indexer.on_template_changed(t.id)
     return _template_to_response(t)
 
 
@@ -48,6 +50,7 @@ async def update_template(template_id: str, req: TemplateUpdateRequest):
     t = template_manager.update_template(template_id, **update_kwargs)
     if not t:
         raise HTTPException(status_code=404, detail="Template not found")
+    search_indexer.on_template_changed(template_id)
     return _template_to_response(t)
 
 
@@ -55,4 +58,5 @@ async def update_template(template_id: str, req: TemplateUpdateRequest):
 async def delete_template(template_id: str):
     if not template_manager.delete_template(template_id):
         raise HTTPException(status_code=404, detail="Template not found")
+    search_indexer.on_template_changed(template_id)
     return {"message": "Template deleted successfully"}

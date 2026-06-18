@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
 from ..config import settings, ServerConfig
+from ..core.search_indexer import search_indexer
 
 router = APIRouter(prefix="/servers", tags=["Servers"])
 
@@ -70,6 +71,7 @@ async def create_server(req: ServerCreateRequest):
         tags=req.tags,
     )
     settings.add_server(server)
+    search_indexer.on_servers_changed()
     return server
 
 
@@ -84,6 +86,7 @@ async def update_server(server_id: str, req: ServerUpdateRequest):
         setattr(server, field, value)
 
     settings.add_server(server)
+    search_indexer.on_servers_changed()
     return server
 
 
@@ -91,6 +94,7 @@ async def update_server(server_id: str, req: ServerUpdateRequest):
 async def delete_server(server_id: str):
     if not settings.remove_server(server_id):
         raise HTTPException(status_code=404, detail="Server not found")
+    search_indexer.on_servers_changed()
     return {"message": "Server deleted successfully"}
 
 

@@ -5,11 +5,13 @@ import {
   CodeOutlined,
   FileTextOutlined,
   HistoryOutlined,
+  SearchOutlined,
 } from '@ant-design/icons';
 import MachineManagement from './components/MachineManagement';
 import TerminalPanel from './components/TerminalPanel';
 import ScriptLibrary from './components/ScriptLibrary';
 import LogViewer from './components/LogViewer';
+import GlobalSearch from './components/GlobalSearch';
 import { useAppStore } from './store';
 import { wsService } from './services/websocket';
 
@@ -38,6 +40,16 @@ const App: React.FC = () => {
         </span>
       ),
       children: <TerminalPanel />,
+    },
+    {
+      key: 'search',
+      label: (
+        <span>
+          <SearchOutlined />
+          全局搜索
+        </span>
+      ),
+      children: <GlobalSearch />,
     },
     {
       key: 'machines',

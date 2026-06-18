@@ -6,6 +6,13 @@ import type {
   LogEntry,
   CommandExecuteRequest,
   ScriptExecuteRequest,
+  SearchRequest,
+  SearchResponse,
+  SearchSuggestion,
+  SearchHistoryItem,
+  SearchShortcut,
+  SearchShortcutCreateRequest,
+  SearchStats,
 } from '../types';
 
 const api = axios.create({
@@ -63,6 +70,35 @@ export const logsApi = {
     api.get('/logs/dates').then(r => r.data),
   getByTask: (taskId: string): Promise<LogEntry> =>
     api.get(`/logs/${taskId}`).then(r => r.data),
+};
+
+export const searchApi = {
+  search: (data: SearchRequest): Promise<SearchResponse> =>
+    api.post('/search', data).then(r => r.data),
+  suggestions: (query: string, limit = 10): Promise<SearchSuggestion[]> =>
+    api.get('/search/suggestions', { params: { query, limit } }).then(r => r.data.suggestions),
+  history: (limit = 20): Promise<SearchHistoryItem[]> =>
+    api.get('/search/history', { params: { limit } }).then(r => r.data.history),
+  clearHistory: (): Promise<{ message: string }> =>
+    api.delete('/search/history').then(r => r.data),
+  removeHistory: (query: string): Promise<{ message: string }> =>
+    api.delete(`/search/history/${encodeURIComponent(query)}`).then(r => r.data),
+  popular: (limit = 10): Promise<SearchSuggestion[]> =>
+    api.get('/search/popular', { params: { limit } }).then(r => r.data.popular),
+  listShortcuts: (): Promise<SearchShortcut[]> =>
+    api.get('/search/shortcuts').then(r => r.data.shortcuts),
+  createShortcut: (data: SearchShortcutCreateRequest): Promise<SearchShortcut> =>
+    api.post('/search/shortcuts', data).then(r => r.data),
+  updateShortcut: (id: string, data: Partial<SearchShortcutCreateRequest>): Promise<SearchShortcut> =>
+    api.put(`/search/shortcuts/${id}`, data).then(r => r.data),
+  deleteShortcut: (id: string): Promise<{ message: string }> =>
+    api.delete(`/search/shortcuts/${id}`).then(r => r.data),
+  executeShortcut: (id: string, limit = 50, offset = 0): Promise<SearchResponse> =>
+    api.post(`/search/shortcuts/${id}/execute`, null, { params: { limit, offset } }).then(r => r.data),
+  reindex: (): Promise<{ total_docs: number; status: string }> =>
+    api.post('/search/reindex').then(r => r.data),
+  stats: (): Promise<SearchStats> =>
+    api.get('/search/stats').then(r => r.data),
 };
 
 export default api;

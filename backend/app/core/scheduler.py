@@ -116,6 +116,7 @@ class CommandScheduler:
             self._cleanup_server_task(task.server_id, task.task_id)
             self._log_task(task)
             self._trigger_done_callbacks(task)
+            self._reindex_search(task.task_id)
             self._semaphore.release()
 
     def _run_script_task(
@@ -209,11 +210,19 @@ class CommandScheduler:
             self._cleanup_server_task(task.server_id, task.task_id)
             self._log_task(task)
             self._trigger_done_callbacks(task)
+            self._reindex_search(task.task_id)
             self._semaphore.release()
 
     def _cleanup_server_task(self, server_id: str, task_id: str) -> None:
         if server_id in self._active_server_tasks:
             self._active_server_tasks[server_id].discard(task_id)
+
+    def _reindex_search(self, task_id: str) -> None:
+        try:
+            from .search_indexer import search_indexer
+            search_indexer.on_task_done(task_id)
+        except Exception:
+            pass
 
     def _log_task(self, task: Task) -> None:
         try:

@@ -74,3 +74,78 @@ export interface ScriptExecuteRequest {
   args?: string[];
   timeout?: number;
 }
+
+export interface SearchResultItem {
+  doc_id: string;
+  doc_type: string;
+  title: string;
+  content: string;
+  metadata: Record<string, any>;
+  tags: string[];
+  timestamp: string | null;
+  status: string | null;
+  server_id: string | null;
+  server_tags: string[];
+  score: number;
+  highlights: string[];
+  matched_terms: string[];
+}
+
+export interface SearchSuggestion {
+  text: string;
+  type: string;
+  count?: number;
+  similarity?: number;
+}
+
+export interface SearchHistoryItem {
+  query: string;
+  filters: Record<string, any>;
+  timestamp: string;
+}
+
+export interface SearchShortcut {
+  id: string;
+  name: string;
+  query: string;
+  filters: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+  usage_count: number;
+}
+
+export interface SearchStats {
+  total_docs: number;
+  by_type: Record<string, number>;
+  initialized: boolean;
+}
+
+export interface SearchRequest {
+  query: string;
+  doc_types?: string[];
+  statuses?: string[];
+  server_ids?: string[];
+  server_tags?: string[];
+  tags?: string[];
+  start_time?: string;
+  end_time?: string;
+  limit: number;
+  offset: number;
+  fuzzy: boolean;
+  expand_synonyms: boolean;
+  record_history: boolean;
+}
+
+export interface SearchResponse {
+  results: SearchResultItem[];
+  total: number;
+  offset: number;
+  limit: number;
+  query: string;
+}
+
+export interface SearchShortcutCreateRequest {
+  name: string;
+  query: string;
+  filters: Record<string, any>;
+}
